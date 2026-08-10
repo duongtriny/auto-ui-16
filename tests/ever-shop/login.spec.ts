@@ -1,4 +1,5 @@
 import { expect, Page, test } from "@playwright/test";
+import { invalidLoginData } from "../../data/login/login-data";
 
 test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:3000/admin/login');
@@ -12,26 +13,16 @@ test(`Verify login successful`, async ({ page }) => {
     await expect(page.locator(dashboardHeaderXpath)).toBeVisible();
 });
 
-test(`Verify login fail when username is empty`, async ({ page }) => {
-    await inputTextboxByLabel('Email', '', page);
-    await inputTextboxByLabel('Password', '1234567890', page);
-    await clickButtonByLabel('SIGN IN', page);
-    await verifyFieldErrorMessageByLabel('Email', 'This field can not be empty', page);
-});
-
-test(`Verify login fail when password is empty`, async ({ page }) => {
-    await inputTextboxByLabel('Email', 'test@with.me', page);
-    await inputTextboxByLabel('Password', '', page);
-    await clickButtonByLabel('SIGN IN', page);
-    await verifyFieldErrorMessageByLabel('Password', 'This field can not be empty', page);
-});
-
-test(`Verify login fail when username is invalid`, async ({ page }) => {
-    await inputTextboxByLabel('Email', 'test', page);
-    await inputTextboxByLabel('Password', '1234567890', page);
-    await clickButtonByLabel('SIGN IN', page);
-    await verifyFieldErrorMessageByLabel('Email', 'Invalid email', page);
-});
+for (let input of invalidLoginData) {
+    test(`Verify login fail when username is '${input.email}' and password is '${input.password}'`, async ({ page }) => {
+        await inputTextboxByLabel('Email', input.email, page);
+        await inputTextboxByLabel('Password', input.password, page);
+        await clickButtonByLabel('SIGN IN', page);
+        for (let item of input.expected) {
+            await verifyFieldErrorMessageByLabel(item.field, item.message, page);
+        }
+    });
+}
 
 async function inputTextboxByLabel(label: string, input: string, page: Page) {
     let xpath = `(//label[normalize-space()='${label}']/following::input)[1]`;
@@ -47,6 +38,6 @@ async function clickButtonByLabel(label: string, page: Page) {
 }
 
 async function verifyFieldErrorMessageByLabel(label: string, message: string, page: Page) {
-    let xpath = `//label[normalize-space()='${label}']/following::div[contains(concat(' ', @class, ' '),' field-error ')and normalize-space()='${message}']`;
+    let xpath = `(//label[normalize-space()='${label}']/following::div[contains(concat(' ', @class, ' '),' field-error ')and normalize-space()='${message}'])[1]`;
     await expect(page.locator(xpath)).toBeVisible();
 }
