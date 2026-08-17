@@ -5,4 +5,10 @@ export class LoginPage extends CommonPage {
     constructor(page: Page) {
         super(page);
     }
+
+    async login(username: string, password: string) {
+        await this.inputTextboxByLabel('Email', username);
+        await this.inputTextboxByLabel('Password', password);
+        await this.clickButtonByLabel('SIGN IN');
+    }
 }

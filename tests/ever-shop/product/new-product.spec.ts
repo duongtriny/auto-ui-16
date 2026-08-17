@@ -4,17 +4,18 @@ import { NewProductPage } from "../../../src/pages/new-product-page";
 import { LoginPage } from "../../../src/pages/login-page";
 import { DashboardPage } from "../../../src/pages/dashboard-page";
 
+let newProductPage: NewProductPage;
+let loginPage: LoginPage;
+let dashboardPage: DashboardPage;
 test.beforeEach(async ({ page }) => {
+    newProductPage = new NewProductPage(page);
+    loginPage = new LoginPage(page);
+    dashboardPage = new DashboardPage(page);
     await page.goto(URL);
 })
 
-test(`Verify create new product successful`, async ({ page }) => {
-    let newProductPage = new NewProductPage(page);
-    let loginPage = new LoginPage(page);
-    let dashboardPage = new DashboardPage(page);
-    await loginPage.inputTextboxByLabel('Email', ADMIN_USERNAME);
-    await loginPage.inputTextboxByLabel('Password', ADMIN_PASSWORD);
-    await loginPage.clickButtonByLabel('SIGN IN');
+test(`Verify create new product successful`, async () => {
+    await loginPage.login(ADMIN_USERNAME, ADMIN_PASSWORD);
     await dashboardPage.onPage();
     await dashboardPage.clickMenuItemByLabel('New Product');
     await newProductPage.onPage();
