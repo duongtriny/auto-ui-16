@@ -44,4 +44,11 @@ export class CommonPage {
     async verifyNotificationMessage(message: string) {
         await expect(this.page.getByText(message)).toBeVisible();
     }
+
+    async getTextboxValueByLabel(label: string) {
+        let xpathTextbox = `(//label[normalize-space()='${label}']/following::input)[1]`;
+        let xpathTextarea = `(//label[normalize-space()='${label}']/following::textarea)[1]`;
+        let inputLocator = this.page.locator(`${xpathTextbox} | ${xpathTextarea}`).first();
+        return inputLocator.inputValue();
+    }
 }

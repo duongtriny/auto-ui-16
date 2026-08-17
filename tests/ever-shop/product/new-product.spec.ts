@@ -3,14 +3,21 @@ import { ADMIN_PASSWORD, ADMIN_USERNAME, URL } from "../../../src/utils/constant
 import { NewProductPage } from "../../../src/pages/new-product-page";
 import { LoginPage } from "../../../src/pages/login-page";
 import { DashboardPage } from "../../../src/pages/dashboard-page";
+import { ProductsPage } from "../../../src/pages/products-page";
+import { EditProductPage } from "../../../src/pages/edit-product-page";
 
 let newProductPage: NewProductPage;
 let loginPage: LoginPage;
 let dashboardPage: DashboardPage;
+let productsPage: ProductsPage;
+let editProductPage: EditProductPage;
+
 test.beforeEach(async ({ page }) => {
     newProductPage = new NewProductPage(page);
     loginPage = new LoginPage(page);
     dashboardPage = new DashboardPage(page);
+    productsPage = new ProductsPage(page);
+    editProductPage = new EditProductPage(page);
     await page.goto(URL);
 })
 
@@ -20,8 +27,10 @@ test(`Verify create new product successful`, async () => {
     await dashboardPage.clickMenuItemByLabel('New Product');
     await newProductPage.onPage();
     const random = new Date().getTime();
-    await newProductPage.inputTextboxByLabel('Name', `Iphone ${random}`);
-    await newProductPage.inputTextboxByLabel('SKU', `SKU-${random}`);
+    const productName = `Iphone ${random}`;
+    const sku = `SKU-${random}`;
+    await newProductPage.inputTextboxByLabel('Name', productName);
+    await newProductPage.inputTextboxByLabel('SKU', sku);
     await newProductPage.inputTextboxByLabel('Price', '1500');
     await newProductPage.inputTextboxByLabel('Weight', '0.05');
     await newProductPage.selectCategory('Men');
@@ -41,4 +50,13 @@ test(`Verify create new product successful`, async () => {
     await newProductPage.inputTextboxByLabel('Meta description', 'Iphone 18 pro max description');
     await newProductPage.clickButtonByLabel('Save');
     await newProductPage.verifyNotificationMessage('Product saved successfully!');
+    await newProductPage.clickMenuItemByLabel('Products');
+    await productsPage.onPage();
+    await productsPage.searchProduct(random.toString());
+    await productsPage.selectProductByName(productName);
+    await editProductPage.onPage(productName);
+    expect(await editProductPage.getTextboxValueByLabel('Name')).toEqual(productName);
+    expect(await editProductPage.getTextboxValueByLabel('SKU')).toEqual(sku);
+    expect(await editProductPage.getTextboxValueByLabel('Price')).toEqual('1500');
+    expect(await editProductPage.getTextboxValueByLabel('Weight')).toEqual('0.05');
 });
