@@ -1,50 +1,43 @@
-import { expect, Page, test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { ADMIN_PASSWORD, ADMIN_USERNAME, URL } from "../../../src/utils/constants-utils";
-import { CommonPage } from "../../../src/pages/common-page";
 import { NewProductPage } from "../../../src/pages/new-product-page";
+import { LoginPage } from "../../../src/pages/login-page";
+import { DashboardPage } from "../../../src/pages/dashboard-page";
 
 test.beforeEach(async ({ page }) => {
     await page.goto(URL);
 })
 
 test(`Verify create new product successful`, async ({ page }) => {
-    let commonPage = new CommonPage(page);
     let newProductPage = new NewProductPage(page);
-    //Login
-    await commonPage.inputTextboxByLabel('Email', ADMIN_USERNAME);
-    await commonPage.inputTextboxByLabel('Password', ADMIN_PASSWORD);
-    await commonPage.clickButtonByLabel('SIGN IN');
-    //Verify user on Dashboard page
-    let dashboardHeaderXpath = `//h1[contains(concat(' ', @class, ' '), ' page-heading-title ') and normalize-space()='Dashboard']`;
-    await expect(page.locator(dashboardHeaderXpath)).toBeVisible();
-    await commonPage.clickMenuItemByLabel('New Product');
-
-    //Verify user on New Product page
-    let newProductHeaderXpath = `//h1[contains(concat(' ', @class, ' '), ' page-heading-title ') and normalize-space()='Create a new product']`;
-    await expect(page.locator(newProductHeaderXpath)).toBeVisible();
-
-    //Input product's info
+    let loginPage = new LoginPage(page);
+    let dashboardPage = new DashboardPage(page);
+    await loginPage.inputTextboxByLabel('Email', ADMIN_USERNAME);
+    await loginPage.inputTextboxByLabel('Password', ADMIN_PASSWORD);
+    await loginPage.clickButtonByLabel('SIGN IN');
+    await dashboardPage.onPage();
+    await dashboardPage.clickMenuItemByLabel('New Product');
+    await newProductPage.onPage();
     const random = new Date().getTime();
-    await commonPage.inputTextboxByLabel('Name', `Iphone ${random}`);
-    await commonPage.inputTextboxByLabel('SKU', `SKU-${random}`);
-    await commonPage.inputTextboxByLabel('Price', '1500');
-    await commonPage.inputTextboxByLabel('Weight', '0.05');
+    await newProductPage.inputTextboxByLabel('Name', `Iphone ${random}`);
+    await newProductPage.inputTextboxByLabel('SKU', `SKU-${random}`);
+    await newProductPage.inputTextboxByLabel('Price', '1500');
+    await newProductPage.inputTextboxByLabel('Weight', '0.05');
     await newProductPage.selectCategory('Men');
-    await commonPage.selectDropdownItemByLabel('Tax class', 'Taxable Goods');
+    await newProductPage.selectDropdownItemByLabel('Tax class', 'Taxable Goods');
     await newProductPage.uploadProductImage('data/upload/iphone-17-pro-max-cam.jpg');
-    await commonPage.selectRadioButtonByLabel('Status', 'Disabled');
-    await commonPage.selectRadioButtonByLabel('Visibility', 'Not visible');
-    await commonPage.selectRadioButtonByLabel('Manage stock?', 'No');
-    await commonPage.selectRadioButtonByLabel('Stock availability', 'No');
-    await commonPage.inputTextboxByLabel('Quantity', '100');
-    await commonPage.selectDropdownItemByLabel('Attribute group', 'Default');
-    await commonPage.selectDropdownItemByLabel('Color', 'Black');
-    await commonPage.selectDropdownItemByLabel('Size', 'XXL');
-
-    await commonPage.inputTextboxByLabel('Url key', `iphone-18-pro-max-${random}`);
-    await commonPage.inputTextboxByLabel('Meta title', 'Iphone 18 Pro Max');
-    await commonPage.inputTextboxByLabel('Meta keywords', 'Iphone 18, pro, max');
-    await commonPage.inputTextboxByLabel('Meta description', 'Iphone 18 pro max description');
-    await commonPage.clickButtonByLabel('Save');
-    await commonPage.verifyNotificationMessage('Product saved successfully!');
+    await newProductPage.selectRadioButtonByLabel('Status', 'Disabled');
+    await newProductPage.selectRadioButtonByLabel('Visibility', 'Not visible');
+    await newProductPage.selectRadioButtonByLabel('Manage stock?', 'No');
+    await newProductPage.selectRadioButtonByLabel('Stock availability', 'No');
+    await newProductPage.inputTextboxByLabel('Quantity', '100');
+    await newProductPage.selectDropdownItemByLabel('Attribute group', 'Default');
+    await newProductPage.selectDropdownItemByLabel('Color', 'Black');
+    await newProductPage.selectDropdownItemByLabel('Size', 'XXL');
+    await newProductPage.inputTextboxByLabel('Url key', `iphone-18-pro-max-${random}`);
+    await newProductPage.inputTextboxByLabel('Meta title', 'Iphone 18 Pro Max');
+    await newProductPage.inputTextboxByLabel('Meta keywords', 'Iphone 18, pro, max');
+    await newProductPage.inputTextboxByLabel('Meta description', 'Iphone 18 pro max description');
+    await newProductPage.clickButtonByLabel('Save');
+    await newProductPage.verifyNotificationMessage('Product saved successfully!');
 });
