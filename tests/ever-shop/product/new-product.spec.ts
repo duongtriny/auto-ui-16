@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { ADMIN_PASSWORD, ADMIN_USERNAME, URL } from "../../../src/utils/constants-utils";
+import { ADMIN_PASSWORD, ADMIN_USERNAME, API_URL, URL } from "../../../src/utils/constants-utils";
 import { NewProductPage } from "../../../src/pages/new-product-page";
 import { LoginPage } from "../../../src/pages/login-page";
 import { DashboardPage } from "../../../src/pages/dashboard-page";
@@ -21,7 +21,7 @@ test.beforeEach(async ({ page }) => {
     await page.goto(URL);
 })
 
-test(`Verify create new product successful`, async () => {
+test(`Verify create new product successful`, async ({ page, request }) => {
     await loginPage.login(ADMIN_USERNAME, ADMIN_PASSWORD);
     await dashboardPage.onPage();
     await dashboardPage.clickMenuItemByLabel('New Product');
@@ -55,8 +55,12 @@ test(`Verify create new product successful`, async () => {
     await productsPage.searchProduct(random.toString());
     await productsPage.selectProductByName(productName);
     await editProductPage.onPage(productName);
+    let productId = editProductPage.getProductIdFromUrl();
     expect(await editProductPage.getTextboxValueByLabel('Name')).toEqual(productName);
     expect(await editProductPage.getTextboxValueByLabel('SKU')).toEqual(sku);
     expect(await editProductPage.getTextboxValueByLabel('Price')).toEqual('1500');
     expect(await editProductPage.getTextboxValueByLabel('Weight')).toEqual('0.05');
+
+    let cookie = await editProductPage.getCookie();
+    await editProductPage.deleteProductById(cookie, productId);
 });

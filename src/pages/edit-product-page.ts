@@ -10,4 +10,10 @@ export class EditProductPage extends CommonPage {
         let newProductHeaderXpath = `//h1[contains(concat(' ', @class, ' '), ' page-heading-title ') and normalize-space()='Editing ${productName}']`;
         await expect(this.page.locator(newProductHeaderXpath)).toBeVisible();
     }
+
+    getProductIdFromUrl() {
+        let url = this.page.url();
+        let splitting = url.split('/');
+        return splitting[splitting.length - 1];
+    }
 }
